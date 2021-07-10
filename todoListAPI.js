@@ -1,12 +1,18 @@
-import {todos}  from "./todoData.js";
+import {Store}  from "./todoData.js";
 import  express  from "express";
-const app = express()
+import bodyParser from "body-parser"
+const app = express();
+app.use(bodyParser.json());
+
+const store = new Store();
 app.get('/todos', function (req, res) {
+const todos = store.get();
   res.send(todos);
 })
 
 app.get('/todos/:id', function (req, res) {
   const id = Number(req.params.id);
+  const todos = store.get();
   const todo = todos.filter(todo=>{
     if(todo.id === id){
       return todo
@@ -17,15 +23,16 @@ app.get('/todos/:id', function (req, res) {
 
 app.delete('/todos/:id',(req,res)=>{
   const id = Number(req.params.id);
-  const newTodos = todos.filter(todo=>todo.id!==id);
-  todos = newTodos;
-  res.send({}) ;
+  const todos = store.get();
+  store.delete(id);
+  res.status(200).send();
 })
 
 app.put('/todos/:id',(req,res)=>{
   const id = Number(req.params.id);
   const newContent = req.body;
-  const todos = todos.map(todo=>{
+  const todos = store.get();
+  todos = todos.map(todo=>{
     if(todo.id === id){
       const newTodo = {...todo,"content":newContent}
       return newTodo;
@@ -41,11 +48,11 @@ app.put('/todos/:id',(req,res)=>{
 })
 
 app.post('/todos',(req,res)=>{
+  const todos = store.get();
   const id = todos[todos.length-1].id + 1;
-  const content = req.body;
-  console.log(req,req.body,"req.body")
-  newTodo ={"content":content,"id":id}
-  todos = [...todos,newTodo];
+  const content = req.body.content;
+  let newTodo ={"content":content,"id":id}
+  store.post(newTodo);
   res.send(newTodo)
 })
 
