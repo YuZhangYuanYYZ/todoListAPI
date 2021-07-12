@@ -7,7 +7,8 @@
         todos = newTodos;
     }
     delete(id){
-        todos = todos.filter(todo=>todo.id!==id);
+        const newTodos = todos.filter(todo=>todo.id!==id);
+        todos = newTodos;
     }
     post(todo){
         todos = [...todos,todo];

@@ -25,7 +25,6 @@ app.get('/todos/:id', function (req, res) {
 
 app.delete('/todos/:id', (req, res) => {
   const id = Number(req.params.id);
-  const todos = store.get();
   store.delete(id);
   res.status(200).send();
 })
