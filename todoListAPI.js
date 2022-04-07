@@ -1,40 +1,56 @@
-import {Store}  from "./todoData.js";
-import  express  from "express";
+import {
+  Store
+} from "./todoData.js";
+import express from "express";
 import bodyParser from "body-parser"
 const app = express();
 app.use(bodyParser.json());
+app.all("*",function(req,res,next){
+  //设置允许跨域的域名，*代表允许任意域名跨域
+  res.header("Access-Control-Allow-Origin","*");
+  //允许的header类型
+  res.header("Access-Control-Allow-Headers","content-type");
+  //跨域允许的请求方式
+  res.header("Access-Control-Allow-Methods","DELETE,PUT,POST,GET,OPTIONS");
+  if (req.method.toLowerCase() == 'options')
+    res.send(200);  //让options尝试请求快速结束
+  else
+    next();
+});
 
 const store = new Store();
 app.get('/todos', function (req, res) {
-const todos = store.get();
+  const todos = store.get();
   res.send(todos);
 })
 
 app.get('/todos/:id', function (req, res) {
   const id = Number(req.params.id);
   const todos = store.get();
-  const todo = todos.filter(todo=>{
-    if(todo.id === id){
+  const todo = todos.filter(todo => {
+    if (todo.id === id) {
       return todo
     }
   })
   res.send(todo);
 })
 
-app.delete('/todos/:id',(req,res)=>{
+app.delete('/todos/:id', (req, res) => {
   const id = Number(req.params.id);
-  const todos = store.get();
   store.delete(id);
   res.status(200).send();
 })
 
-app.put('/todos/:id',(req,res)=>{
+app.put('/todos/:id', (req, res) => {
   const id = Number(req.params.id);
   const newContent = req.body;
   const todos = store.get();
-  todos = todos.map(todo=>{
-    if(todo.id === id){
-      const newTodo = {...todo,"content":newContent}
+  todos = todos.map(todo => {
+    if (todo.id === id) {
+      const newTodo = {
+        ...todo,
+        "content": newContent
+      }
       return newTodo;
     }
     return todo;
@@ -47,18 +63,18 @@ app.put('/todos/:id',(req,res)=>{
   }
 })
 
-app.post('/todos',(req,res)=>{
+app.post('/todos', (req, res) => {
   const todos = store.get();
-  const id = todos[todos.length-1].id + 1;
+  const id = todos[todos.length - 1].id + 1;
   const content = req.body.content;
-  let newTodo ={"content":content,"id":id}
+  let newTodo = {
+    "content": content,
+    "id": id
+  }
   store.post(newTodo);
   res.send(newTodo)
 })
 
-app.listen(8080,()=>{
-    console.log("server  start at port 8080");
+app.listen(8080, () => {
+  console.log("server  start at port 8080");
 });
-
-
-
